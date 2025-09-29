@@ -1,4 +1,4 @@
-package Testrunner;
+package TestRunner;
 import io.cucumber.junit.Cucumber;
 //import io.cucumber.testng.AbstractTestNGCucumberTests;
 //import io.cucumber.testng.CucumberOptions;
@@ -8,8 +8,9 @@ import org.junit.runner.RunWith;
 
 @RunWith(Cucumber.class)
 @CucumberOptions(
-        features = "src/test/java/Features",
+        features = "src/test/java/Features/login.feature",
         glue = {"StepDefinitions"},
+        dryRun = false,
         monochrome = true,
         plugin = {"pretty",
                 "json:target/cucumber-reports/Cucumber.json",
@@ -17,6 +18,6 @@ import org.junit.runner.RunWith;
                 "io.qameta.allure.cucumber6jvm.AllureCucumber6Jvm"}
 )
 
-public class Testrunner  {
+public class Testrunner {
     // No @Test method required
 }

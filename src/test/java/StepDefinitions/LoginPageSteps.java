@@ -8,18 +8,18 @@ import io.cucumber.java.en.When;
 import org.openqa.selenium.WebDriver;
 import pages.LoginPage;
 
-public class MyStepdefs {
+public class LoginPageSteps {
 
 
     WebDriver driver = Browsers.tlDriver.get();
     public LoginPage loginPage = new LoginPage(driver);
-    public MyStepdefs() {
+    public LoginPageSteps() {
         this.driver = Browsers.tlDriver.get();
     }
 
     @Given("User is on Facebook login page")
     public void userIsOnFacebookLoginPage() throws InterruptedException {
-        driver.get("https://www.facebook.com/");
+        loginPage.driver.get("https://www.facebook.com/");
         Thread.sleep(2000);
         System.out.println("User is on Facebook login page");
     }
