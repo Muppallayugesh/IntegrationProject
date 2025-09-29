@@ -1,6 +1,6 @@
 Feature: Login feature
 
-#  Background: Login into Facebook
+  Background: Login into Facebook
 
 
   Scenario: Login with valid credentials
