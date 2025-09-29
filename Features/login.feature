@@ -7,3 +7,8 @@ Feature: Login feature
     When User enters valid username and password
     And User clicks on login button
     Then User should be logged in successfully
+
+  Scenario: Login with invalid credentials
+    When User enters invalid username and password
+    And User clicks on login button
+    Then User should see an error message

@@ -39,4 +39,16 @@ public class MyStepdefs {
     public void userShouldBeLoggedInSuccessfully() {
         System.out.println("User should be logged in successfully");
     }
+
+    @When("User enters invalid username and password")
+    public void userEntersInvalidUsernameAndPassword() {
+        loginPage.enterUsername("invalid_user");
+        loginPage.enterPassword("invalid_pass");
+        System.out.println("User enters invalid username and password");
+    }
+
+    @Then("User should see an error message")
+    public void userShouldSeeAnErrorMessage() {
+        System.out.println("User should see an error message");
+    }
 }
