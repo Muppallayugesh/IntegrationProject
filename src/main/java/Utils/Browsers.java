@@ -42,11 +42,11 @@ public class Browsers {
             option.addArguments("--disable-popup-blocking");
             option.addArguments("use-fake-device-for-media-stream");
             option.addArguments("use-fake-ui-for-media-stream");
-//            //Add these for CI stability:
-//            option.addArguments("--headless=new"); // Headless for CI/CD
-//            option.addArguments("--no-sandbox");
-//            option.addArguments("--disable-dev-shm-usage");
-//            option.setAcceptInsecureCerts(true); // Accept self-signed certs
+            //Add these for CI stability:
+            option.addArguments("--headless=new"); // Headless for CI/CD
+            option.addArguments("--no-sandbox");
+            option.addArguments("--disable-dev-shm-usage");
+            option.setAcceptInsecureCerts(true); // Accept self-signed certs
 
 //            // Other useful options
 //            option.addArguments("--ignore-certificate-errors");
