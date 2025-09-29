@@ -20,16 +20,29 @@ public class Browsers {
             ChromeOptions options = new ChromeOptions();
             options.addArguments("--remote-allow-origins=*");
             options.addArguments("--disable-popup-blocking");
+
+            // Add unique user data dir to avoid profile conflicts
+            String userDataDir = System.getProperty("java.io.tmpdir") + "/chrome_profile_" + System.currentTimeMillis();
+            options.addArguments("--user-data-dir=" + userDataDir);
+
+            // Optional: Uncomment if running in Linux/CI environments
+            // options.addArguments("--headless=new");
+            // options.addArguments("--no-sandbox");
+            // options.addArguments("--disable-dev-shm-usage");
+
             WebDriverManager.chromedriver().setup();
             devDriver = new ChromeDriver(options);
             devTools = devDriver.getDevTools();
             tlDriver.set(devDriver);
+
         } else if (browser.equalsIgnoreCase("firefox")) {
             WebDriverManager.firefoxdriver().setup();
             tlDriver.set(new FirefoxDriver());
+
         } else if (browser.equalsIgnoreCase("edge")) {
             WebDriverManager.edgedriver().setup();
             tlDriver.set(new EdgeDriver());
+
         } else {
             System.out.println("Please pass the correct browser value: " + browser);
             return null;
