@@ -1,26 +1,30 @@
 package StepDefinitions;
 
+import Utils.Browsers;
 import Utils.ConfigReader;
 import io.cucumber.java.After;
 import io.cucumber.java.Before;
+import io.cucumber.java.Scenario;
 import io.cucumber.java.en.Then;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.devtools.DevTools;
-import Utils.Browsers;
-import Utils.ConfigReader;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.*;
 import java.time.Duration;
 import java.util.Properties;
-import java.util.logging.Logger;
 
 public class ApplicationHooks {
+
     public Browsers browsers = new Browsers();
     private static WebDriver driver;
     private static DevTools devTools;
     private ConfigReader configReader;
     Properties prop;
     String browserName = null;
-    boolean session = false;
 
     @Before(order = 0)
     public void getProperty() {
@@ -29,76 +33,74 @@ public class ApplicationHooks {
     }
 
     @Before(order = 1)
-    public void launchBrowser() throws InterruptedException {
+    public void launchBrowser() {
         browserName = prop.getProperty("browser");
-//        if (tlDriver.get() == null) {
-//            browsers = new Browsers();
-//            driver = browsers.init_driver(browserName);
-//            /**
-//            driver = (WebDriver) Browsers.init_driver(browserName).toArray()[0];
-//            devTools = (DevTools) Browsers.init_driver(browserName).toArray()[1]; */
-//            driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
-//        }
-        if (Browsers.tlDriver.get() == null) { // Use ThreadLocal driver
-            driver = Browsers.init_driver(browserName);
-            Browsers.tlDriver.set(driver); // Store it in ThreadLocal
 
-            session = true;
+        System.out.println("Launching browser: " + browserName);
+
+        if (Browsers.tlDriver.get() == null) {
+            driver = Browsers.init_driver(browserName);
+            Browsers.tlDriver.set(driver);
             driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+            System.out.println("Driver launched successfully.");
         } else {
-            driver = Browsers.tlDriver.get(); // Use the existing driver for this thread
+            driver = Browsers.tlDriver.get();
         }
     }
 
+    @After(order = 0)
+    public void captureScreenshotOnFailure(Scenario scenario) {
+        WebDriver driver = Browsers.getDriver();
 
-//        After section for visual testing
-//    @After(order = 0)
-//    public void af(Scenario scenario1) throws InterruptedException, IllegalMonitorStateException, IOException {
-//        scenario1.log("After Hook");
-//
-//        ArrayList<String> tabs2 = new ArrayList<>(driver.getWindowHandles());
-//        if (!(driver == null)) {
-//            if (scenario1.isFailed()) {
-//                if (tabs2.size() > 1) {
-//                    driver.switchTo().window(tabs2.get(1));
-//                }
-//                Allure.addAttachment("Error", new ByteArrayInputStream(((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES)));
-//                String screenshotFile = Utilities.screenshot(driver, "Screenshot error on step"); /** screenshot path */
-//                System.out.println("Screenshot at " + screenshotFile);
-//                Thread.sleep(1000);
-//                //Utilities.refreshPage();
-//            }
-//            //String tb = Keys.chord(Keys.CONTROL, Keys.chord("w"), Keys.ENTER);
-//            //driver.findElement(By.xpath("//*[text()='Company']")).sendKeys(tb);
-//            while (tabs2.size() > 1) {
-//                driver.switchTo().window(tabs2.get(1));
-//                tabs2.remove(1);
-//                driver.close();
-//                driver.switchTo().window(tabs2.get(0));
-//            }
+        if (driver == null) {
+            System.err.println("Screenshot skipped: WebDriver is null.");
+            return;
+        }
+
+        if (scenario.isFailed()) {
+            try {
+                // Attach to Cucumber report
+                byte[] screenshot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES);
+                scenario.attach(screenshot, "image/png", "Failure Screenshot");
+
+                // Save locally (optional)
+                Path screenshotsDir = Paths.get("screenshots");
+                Files.createDirectories(screenshotsDir);
+                String safeScenarioName = scenario.getName().replaceAll("[^a-zA-Z0-9\\-]", "_");
+                String filename = "FAILED_" + safeScenarioName + ".png";
+
+                File screenshotFile = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
+                Files.copy(screenshotFile.toPath(), screenshotsDir.resolve(filename), StandardCopyOption.REPLACE_EXISTING);
+
+                System.out.println("Screenshot saved to: " + screenshotsDir.resolve(filename));
+
+            } catch (Exception e) {
+                System.err.println("Could not capture screenshot: " + e.getMessage());
+            }
+        }
+    }
+
+    // By commenting this driver is not quitted after each scenario
+
+
+
+//    @After(order = 1)
+//    public void turnOff() {
+//        if (Browsers.tlDriver.get() != null) {
+//            Browsers.tlDriver.get().quit();
+//            Browsers.tlDriver.remove();
+//            System.out.println("Driver quit and ThreadLocal cleared.");
 //        }
 //    }
 
-    @After(order = 1)
-    public void turnOff() {
-        if (Browsers.tlDriver.get() != null) {
-            Browsers.tlDriver.get().quit(); // Quit the ThreadLocal driver
-            Browsers.tlDriver.remove(); // Clear the ThreadLocal storage
-        }
-//        if (driver != null) {
-//            driver.quit();
-//            driver = null; // Reset driver for the next test
-//        }
-    }
-
     @Then("close session")
     public void tearDown() {
-        driver.quit();
+        if (driver != null) {
+            driver.quit();
+        }
     }
 
     public DevTools getDevTools() {
-
         return devTools;
     }
-
 }
