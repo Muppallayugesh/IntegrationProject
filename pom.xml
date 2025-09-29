@@ -95,7 +95,11 @@
             <version>2.0.12</version>
             <scope>test</scope> <!-- or remove scope to use in all phases -->
         </dependency>
-
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-devtools-v124</artifactId>
+            <version>4.20.0</version>
+        </dependency>
     </dependencies>
 
     <build>
