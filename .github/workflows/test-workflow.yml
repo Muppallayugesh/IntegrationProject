@@ -30,3 +30,10 @@ jobs:
 
       - name: Build and run tests with Maven
         run: mvn clean test
+
+      - name: Upload failed screenshots
+        if: always()  # Runs even if tests fail
+        uses: actions/upload-artifact@v3
+        with:
+          name: failed-test-screenshots
+          path: target/screenshots/

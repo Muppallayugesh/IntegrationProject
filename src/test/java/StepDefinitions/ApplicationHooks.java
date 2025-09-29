@@ -6,6 +6,7 @@ import io.cucumber.java.After;
 import io.cucumber.java.Before;
 import io.cucumber.java.Scenario;
 import io.cucumber.java.en.Then;
+import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
@@ -48,38 +49,54 @@ public class ApplicationHooks {
         }
     }
 
-    @After(order = 0)
-    public void captureScreenshotOnFailure(Scenario scenario) {
-        WebDriver driver = Browsers.getDriver();
+//    @After(order = 0)
+//    public void captureScreenshotOnFailure(Scenario scenario) {
+//        WebDriver driver = Browsers.getDriver();
+//
+//        if (driver == null) {
+//            System.err.println("Screenshot skipped: WebDriver is null.");
+//            return;
+//        }
+//
+//        if (scenario.isFailed()) {
+//            try {
+//                // Attach to Cucumber report
+//                byte[] screenshot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES);
+//                scenario.attach(screenshot, "image/png", "Failure Screenshot");
+//
+//                // Save locally (optional)
+//                Path screenshotsDir = Paths.get("screenshots");
+//                Files.createDirectories(screenshotsDir);
+//                String safeScenarioName = scenario.getName().replaceAll("[^a-zA-Z0-9\\-]", "_");
+//                String filename = "FAILED_" + safeScenarioName + ".png";
+//
+//                File screenshotFile = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
+//                Files.copy(screenshotFile.toPath(), screenshotsDir.resolve(filename), StandardCopyOption.REPLACE_EXISTING);
+//
+//                System.out.println("Screenshot saved to: " + screenshotsDir.resolve(filename));
+//
+//            } catch (Exception e) {
+//                System.err.println("Could not capture screenshot: " + e.getMessage());
+//            }
+//        }
+//    }
 
-        if (driver == null) {
-            System.err.println("Screenshot skipped: WebDriver is null.");
-            return;
-        }
-
-        if (scenario.isFailed()) {
+    @After(order = 1)
+    public void takeScreenshotIfFailed(Scenario scenario) {
+        if (scenario.isFailed() && driver != null) {
             try {
-                // Attach to Cucumber report
-                byte[] screenshot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES);
-                scenario.attach(screenshot, "image/png", "Failure Screenshot");
-
-                // Save locally (optional)
-                Path screenshotsDir = Paths.get("screenshots");
-                Files.createDirectories(screenshotsDir);
-                String safeScenarioName = scenario.getName().replaceAll("[^a-zA-Z0-9\\-]", "_");
-                String filename = "FAILED_" + safeScenarioName + ".png";
-
-                File screenshotFile = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
-                Files.copy(screenshotFile.toPath(), screenshotsDir.resolve(filename), StandardCopyOption.REPLACE_EXISTING);
-
-                System.out.println("Screenshot saved to: " + screenshotsDir.resolve(filename));
-
-            } catch (Exception e) {
-                System.err.println("Could not capture screenshot: " + e.getMessage());
+                File screenshot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
+                String screenshotDir = "target/screenshots/";
+                String screenshotPath = screenshotDir + scenario.getName().replaceAll(" ", "_") + ".png";
+                FileUtils.copyFile(screenshot, new File(screenshotPath));
+                System.out.println("📸 Screenshot captured: " + screenshotPath);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
+        } else if (driver == null) {
+            System.out.println("Screenshot skipped: WebDriver is null.");
         }
     }
-
     // By commenting this driver is not quitted after each scenario
 
 
