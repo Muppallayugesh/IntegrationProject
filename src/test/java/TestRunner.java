@@ -7,7 +7,7 @@ import org.junit.runner.RunWith;
 
 @RunWith(Cucumber.class)
 @CucumberOptions(
-        features = "src/test/resources/Features/login.feature",
+        features = "src/test/java/login.feature",
         glue = {"StepDefinitions"},
         dryRun = false,
         monochrome = true,
@@ -17,6 +17,6 @@ import org.junit.runner.RunWith;
                 "io.qameta.allure.cucumber6jvm.AllureCucumber6Jvm"}
 )
 
-public class TestCase {
+public class TestRunner {
     // No @Test method required
 }
