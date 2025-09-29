@@ -8,6 +8,10 @@ import org.openqa.selenium.devtools.DevTools;
 import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
 public class Browsers {
     public static ThreadLocal<WebDriver> tlDriver = new ThreadLocal<>();
     public static ChromeDriver devDriver;
@@ -21,14 +25,15 @@ public class Browsers {
             options.addArguments("--remote-allow-origins=*");
             options.addArguments("--disable-popup-blocking");
 
-            // Add unique user data dir to avoid profile conflicts
-            String userDataDir = System.getProperty("java.io.tmpdir") + "/chrome_profile_" + System.currentTimeMillis();
-            options.addArguments("--user-data-dir=" + userDataDir);
-
-            // Optional: Uncomment if running in Linux/CI environments
-            // options.addArguments("--headless=new");
-            // options.addArguments("--no-sandbox");
-            // options.addArguments("--disable-dev-shm-usage");
+            // Create a unique temp directory for user-data-dir to avoid conflicts
+            try {
+                Path tempDir = Files.createTempDirectory("chrome-profile-");
+                tempDir.toFile().deleteOnExit(); // Deletes on JVM exit
+                options.addArguments("--user-data-dir=" + tempDir.toAbsolutePath().toString());
+            } catch (IOException e) {
+                System.err.println("Failed to create temp directory for Chrome user data");
+                e.printStackTrace();
+            }
 
             WebDriverManager.chromedriver().setup();
             devDriver = new ChromeDriver(options);
