@@ -122,7 +122,7 @@
                 <version>3.0.0-M5</version>
                 <configuration>
                     <includes>
-                        <include>**/Testrunner.java</include> <!-- or TestrunnerTest.java -->
+                        <include>**/*TestCase.java</include> <!-- or TestrunnerTest.java -->
                     </includes>
                 </configuration>
             </plugin>

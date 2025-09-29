@@ -1,4 +1,3 @@
-package TestRunner;
 import io.cucumber.junit.Cucumber;
 //import io.cucumber.testng.AbstractTestNGCucumberTests;
 //import io.cucumber.testng.CucumberOptions;
@@ -18,6 +17,6 @@ import org.junit.runner.RunWith;
                 "io.qameta.allure.cucumber6jvm.AllureCucumber6Jvm"}
 )
 
-public class Testrunner {
+public class TestCase {
     // No @Test method required
 }
