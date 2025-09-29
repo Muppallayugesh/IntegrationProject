@@ -4,16 +4,15 @@ import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.devtools.DevTools;
 import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 
-import java.util.UUID;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public class Browsers {
     public static ThreadLocal<WebDriver> tlDriver = new ThreadLocal<>();
-    public static ChromeDriver devDriver;
-    public static DevTools devTools;
 
     public static WebDriver init_driver(String browser) {
         System.out.println("browser value is: " + browser);
@@ -22,17 +21,19 @@ public class Browsers {
             ChromeOptions options = new ChromeOptions();
             options.addArguments("--remote-allow-origins=*");
             options.addArguments("--disable-popup-blocking");
-            options.addArguments("--no-sandbox");  // Good for Linux containers
-            options.addArguments("--disable-dev-shm-usage");  // For container environments
 
-            // Use a truly unique user data dir for each session to avoid conflicts
-            String userDataDir = "/tmp/chrome-user-data-" + UUID.randomUUID();
-            options.addArguments("--user-data-dir=" + userDataDir);
+            // Create a unique temp directory for user-data-dir to avoid conflicts
+            try {
+                Path tempDir = Files.createTempDirectory("chrome-profile-");
+                tempDir.toFile().deleteOnExit(); // Deletes on JVM exit
+                options.addArguments("--user-data-dir=" + tempDir.toAbsolutePath().toString());
+            } catch (IOException e) {
+                System.err.println("Failed to create temp directory for Chrome user data");
+                e.printStackTrace();
+            }
 
             WebDriverManager.chromedriver().setup();
-            devDriver = new ChromeDriver(options);
-            devTools = devDriver.getDevTools();
-            tlDriver.set(devDriver);
+            tlDriver.set(new ChromeDriver(options));
 
         } else if (browser.equalsIgnoreCase("firefox")) {
             WebDriverManager.firefoxdriver().setup();
@@ -53,9 +54,5 @@ public class Browsers {
             driver.manage().window().maximize();
         }
         return driver;
-    }
-
-    public static DevTools getDevTools() {
-        return devTools;
     }
 }
